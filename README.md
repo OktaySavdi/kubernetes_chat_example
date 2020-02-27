@@ -52,7 +52,7 @@ http://chat.10.10.10.10.nip.io/chat
 ```json
 KibanaPASSWORD=$(kubectl get secret elasticsearch-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode)
 
-curl -u "elastic:$KibanaPASSWORD" -k "https://10.96.175.207:9200"
+curl -u "elastic:$KibanaPASSWORD" -k "https://[Service_IP]:9200"
   ``` 
 **Redis**
 ```json
