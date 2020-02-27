@@ -32,7 +32,7 @@ kind: Ingress
 metadata:
   name: kibana
   annotations:
-    nginx.org/ssl-services: "elasticsearch-es-http"
+    nginx.org/ssl-services: "kibana-kb-http"
 spec:
   tls:
   - hosts:
