@@ -1,4 +1,4 @@
-# Kuberbetes example chat
+# Kubernetes example chat
 
 ![https://github.com/OktaySavdi/kubernetes_chat_example](https://user-images.githubusercontent.com/3519706/75439435-d731ec00-596a-11ea-80f7-d641d1d5aab9.png)
 
