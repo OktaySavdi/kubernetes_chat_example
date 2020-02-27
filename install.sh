@@ -8,7 +8,7 @@
 CertFolder="/opt/certificate"
 
 #Namespace name
-Namespace=oto
+Namespace=chat
 
 #Kibana certificate
 KeyFile=kibana.key
