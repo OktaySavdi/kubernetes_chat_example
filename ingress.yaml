@@ -1,0 +1,48 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: chat
+spec:
+  rules:
+  - host: chat.NODE.nip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: chat
+          servicePort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: rabbit
+spec:
+  rules:
+  - host: rabbit.NODE.nip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: rabbitmq
+          servicePort: 15672
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kibana
+  annotations:
+    nginx.org/ssl-services: "elasticsearch-es-http"
+spec:
+  tls:
+  - hosts:
+    - kibana.NODE.nip.io
+    secretName: tls-k8s-kibana-ingress
+  rules:
+  - host: "kibana.NODE.nip.io"
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kibana-kb-http
+          servicePort: 5601

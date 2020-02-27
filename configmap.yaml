@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elastic-config
+data:
+  es_servername: "elasticsearch-es-http"
+  es_serverport: "9200"
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: fluentd-chat-config
+data:
+  forward.input.conf: |-
+    <source>
+      @type tail
+      path /app/logs/*.log 
+      pos_file /app/logs/log.pos
+      tag fluentd_elasticsearch
+      format json
+    </source>
+  output.conf: |-
+    <match **>
+       @type elasticsearch
+       scheme https
+       host "#{ENV['es_servername']}"
+       port "#{ENV['es_serverport']}"
+       user "#{ENV['es_username']}"
+       ssl_verify false
+       ssl_version TLSv1_2
+       password "#{ENV['es_password']}"
+       include_tag_key true
+       logstash_format true
+       # Set the chunk limits.
+       buffer_chunk_limit 2M
+       buffer_queue_limit 8
+       flush_interval 5s
+       max_retry_wait 30
+       disable_retry_limit
+       num_threads 2
+    </match>

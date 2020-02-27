@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: rabbitmq
+  name: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: rabbitmq
+  template:
+    metadata:
+      labels:
+        run: rabbitmq
+    spec:
+      containers:
+      - image: rabbitmq:3.8.2-management
+        name: rabbitmq
+        ports:
+        - containerPort: 15672
+          name: management
+        - containerPort: 5672
+          name: rabbitmq
+        resources:
+          requests:
+            cpu: 200m
+            memory: 200Mi
+          limits:
+            cpu: 350m
+            memory: 350Mi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: rabbitmq
+  labels:
+    run: rabbitmq
+spec:
+  selector:
+    run: rabbitmq
+  ports:
+   - name: rabbitmq-mgmt-port
+     protocol: TCP
+     port: 15672
+     targetPort: 15672
+   - name: rabbitmq-amqp-port
+     protocol: TCP
+     port: 5672
+     targetPort: 5672

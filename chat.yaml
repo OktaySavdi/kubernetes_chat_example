@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: chat
+  name: chat
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat
+  template:
+    metadata:
+      labels:
+        app: chat
+    spec:
+      containers:
+      - image: quay.io/oktaysavdi/chat #Code Repo https://github.com/OktaySavdi/chat_example
+        imagePullPolicy: IfNotPresent
+        name: chat
+        livenessProbe:
+          httpGet:
+            path: /chat/health
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /chat/health
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 5
+          timeoutSeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        terminationMessagePath: /dev/termination-log
+        envFrom:
+        - secretRef:
+            name: elastic-secret
+        - configMapRef:
+            name: elastic-config
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 150m
+            memory: 150Mi
+        volumeMounts:
+        - name : log
+          mountPath: /app/logs
+        ports:
+        - containerPort: 80
+      - name: fluentd
+        image: quay.io/fluentd_elasticsearch/fluentd
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - secretRef:
+            name: elastic-secret
+        - configMapRef:
+            name: elastic-config
+        volumeMounts:
+        - name: fluentd-config-volume
+          mountPath: /etc/fluent/config.d
+        - name : log
+          mountPath: /app/logs
+      volumes:
+        - name: log
+          emptyDir: {}
+        - name: fluentd-config-volume
+          configMap:
+            name: fluentd-chat-config
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: chat
+  name: chat
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: chat
